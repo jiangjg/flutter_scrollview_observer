@@ -10,7 +10,6 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
 import 'package:scrollview_observer/src/common/models/observer_handle_contexts_result_model.dart';
 import 'package:scrollview_observer/src/common/observer_controller.dart';
 import 'package:scrollview_observer/src/common/observer_listener.dart';
@@ -23,8 +22,12 @@ import 'package:scrollview_observer/src/utils/src/log.dart';
 
 import 'models/observe_model.dart';
 
-class ObserverWidget<C extends ObserverController, M extends ObserveModel,
-    N extends ScrollViewOnceObserveNotification> extends StatefulWidget {
+class ObserverWidget<
+  C extends ObserverController,
+  M extends ObserveModel,
+  N extends ScrollViewOnceObserveNotification
+>
+    extends StatefulWidget {
   /// The subtree below this widget.
   final Widget child;
 
@@ -108,8 +111,8 @@ class ObserverWidget<C extends ObserverController, M extends ObserveModel,
         ObserverTriggerOnObserveType.displayingItemsChange,
     this.customHandleObserve,
     this.customTargetRenderSliverType,
-  })  : assert(toNextOverPercent > 0 && toNextOverPercent <= 1),
-        super(key: key);
+  }) : assert(toNextOverPercent > 0 && toNextOverPercent <= 1),
+       super(key: key);
 
   @override
   State<ObserverWidget> createState() =>
@@ -131,13 +134,11 @@ class ObserverWidget<C extends ObserverController, M extends ObserveModel,
   /// * [ObserverWidget.of], which is similar to this method, but asserts if no
   ///   [ObserverWidget] instance is found.
   static ObserverWidgetState<C, M, N, T>? maybeOf<
-      C extends ObserverController,
-      M extends ObserveModel,
-      N extends ScrollViewOnceObserveNotification,
-      T extends ObserverWidget<C, M, N>>(
-    BuildContext context, {
-    String? tag,
-  }) {
+    C extends ObserverController,
+    M extends ObserveModel,
+    N extends ScrollViewOnceObserveNotification,
+    T extends ObserverWidget<C, M, N>
+  >(BuildContext context, {String? tag}) {
     BuildContext? _ctx;
     if (tag != null) {
       final tagManager = ObserverWidgetTagManager.maybeOf(context);
@@ -165,17 +166,12 @@ class ObserverWidget<C extends ObserverController, M extends ObserveModel,
   /// * [ObserverWidget.maybeOf], which is similar to this method, but returns
   ///   null if no [ObserverWidget] instance is found.
   static ObserverWidgetState<C, M, N, T> of<
-      C extends ObserverController,
-      M extends ObserveModel,
-      N extends ScrollViewOnceObserveNotification,
-      T extends ObserverWidget<C, M, N>>(
-    BuildContext context, {
-    String? tag,
-  }) {
-    final observerState = maybeOf<C, M, N, T>(
-      context,
-      tag: tag,
-    );
+    C extends ObserverController,
+    M extends ObserveModel,
+    N extends ScrollViewOnceObserveNotification,
+    T extends ObserverWidget<C, M, N>
+  >(BuildContext context, {String? tag}) {
+    final observerState = maybeOf<C, M, N, T>(context, tag: tag);
     assert(() {
       if (observerState == null) {
         throw FlutterError(
@@ -196,10 +192,12 @@ class ObserverWidget<C extends ObserverController, M extends ObserveModel,
 }
 
 class ObserverWidgetState<
-    C extends ObserverController,
-    M extends ObserveModel,
-    N extends ScrollViewOnceObserveNotification,
-    T extends ObserverWidget<C, M, N>> extends State<T> {
+  C extends ObserverController,
+  M extends ObserveModel,
+  N extends ScrollViewOnceObserveNotification,
+  T extends ObserverWidget<C, M, N>
+>
+    extends State<T> {
   /// Target sliver [BuildContext]
   List<BuildContext> targetSliverContexts = [];
 
@@ -212,7 +210,7 @@ class ObserverWidgetState<
       [
         ObserverAutoTriggerObserveType.scrollStart,
         ObserverAutoTriggerObserveType.scrollUpdate,
-        ObserverAutoTriggerObserveType.scrollEnd
+        ObserverAutoTriggerObserveType.scrollEnd,
       ];
 
   /// Mapping [ObserverAutoTriggerObserveType] to [ScrollNotification].
@@ -313,8 +311,9 @@ class ObserverWidgetState<
           // If the notification.runtimeType is not in the list of
           // innerAutoTriggerObserveScrollNotifications that can trigger
           // observation, the notification will be ignored.
-          if (innerAutoTriggerObserveScrollNotifications
-              .contains(notification.runtimeType)) {
+          if (innerAutoTriggerObserveScrollNotifications.contains(
+            notification.runtimeType,
+          )) {
             final isIgnoreInnerCanHandleObserve =
                 ScrollUpdateNotification != notification.runtimeType;
             WidgetsBinding.instance.endOfFrame.then((_) {
@@ -352,9 +351,7 @@ class ObserverWidgetState<
     // When nesting multiple ObserverWidgets, ensure that only one
     // ObserverWidgetTagManager is at the top.
     if (ObserverWidgetTagManager.maybeOf(context) == null) {
-      resultWidget = ObserverWidgetTagManager(
-        child: resultWidget,
-      );
+      resultWidget = ObserverWidgetTagManager(child: resultWidget);
     }
     return resultWidget;
   }
@@ -382,7 +379,9 @@ class ObserverWidgetState<
 
   /// Fetch target sliver [BuildContext]s
   List<BuildContext> fetchTargetSliverContexts() {
-    List<BuildContext> ctxs = targetSliverContexts;
+    // List<BuildContext> ctxs = targetSliverContexts;
+    // 每次都调用 widget.sliverContexts 获取最新的
+    List<BuildContext> ctxs = <BuildContext>[];
     if (ctxs.isEmpty) {
       final sliverListContexts = widget.sliverContexts;
       if (sliverListContexts != null) {
@@ -576,11 +575,13 @@ class ObserverWidgetState<
       onObserve != null || onObserveAll != null,
       'At least one callback must be provided.',
     );
-    innerListeners?.add(ObserverListenerEntry<M>(
-      context: context,
-      onObserve: onObserve,
-      onObserveAll: onObserveAll,
-    ));
+    innerListeners?.add(
+      ObserverListenerEntry<M>(
+        context: context,
+        onObserve: onObserve,
+        onObserveAll: onObserveAll,
+      ),
+    );
   }
 
   /// Remove the specified [OnObserveCallback] and [OnObserveAllCallback].
@@ -606,9 +607,7 @@ class ObserverWidgetState<
     }
   }
 
-  void _notifyListeners(
-    Map<BuildContext, M> changeResultMap,
-  ) {
+  void _notifyListeners(Map<BuildContext, M> changeResultMap) {
     if (changeResultMap.isEmpty) return;
     final _listeners = innerListeners;
     if (_listeners == null || _listeners.isEmpty) return;
@@ -633,20 +632,23 @@ class ObserverWidgetState<
           }
         }
       } catch (exception, stack) {
-        FlutterError.reportError(FlutterErrorDetails(
-          exception: exception,
-          stack: stack,
-          library: 'scrollview_observer',
-          context:
-              ErrorDescription('while dispatching result for $runtimeType'),
-          informationCollector: () => <DiagnosticsNode>[
-            DiagnosticsProperty<ObserverWidgetState>(
-              'The $runtimeType sending result was',
-              this,
-              style: DiagnosticsTreeStyle.errorProperty,
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: exception,
+            stack: stack,
+            library: 'scrollview_observer',
+            context: ErrorDescription(
+              'while dispatching result for $runtimeType',
             ),
-          ],
-        ));
+            informationCollector: () => <DiagnosticsNode>[
+              DiagnosticsProperty<ObserverWidgetState>(
+                'The $runtimeType sending result was',
+                this,
+                style: DiagnosticsTreeStyle.errorProperty,
+              ),
+            ],
+          ),
+        );
       }
     }
   }
